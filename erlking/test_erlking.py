@@ -11,9 +11,11 @@ def test_core_computation():
                          [ 1.,  0.,  2.,  0.],
                          [ 1.,  1.,  1.,  2.]])
 
-    columns = ['y','x1','x2']
-    X_train_ex = np.array([[3,3],[6,4],[6,6]])
-    X_test_ex = np.array([[5,2],[5,5]])
+    X_train_ex = np.array([[3,3],
+                           [6,4],
+                           [6,6]])
+    X_test_ex = np.array([[5,2],
+                          [5,5]])
     pred_centered_ex = np.array([[-20,-20,10,30],[-20,30,-20,10]])
     n_trees = 4
 
@@ -22,14 +24,25 @@ def test_core_computation():
 
     npt.assert_almost_equal(our_vij, r_vij)
 
-#def test_random_forest_error():
-    # data = np.array([[70,5,2],[100,5,5],[60,3,3],[100,6,4],[120,6,6]])
-    # X = pd.DataFrame(data=data, columns=columns)
-    # y_test_ex = [100,70]
-    # y_train_ex = [60,100,12]
+def test_random_forest_error():
+    X = np.array([[5, 2],
+                  [5, 5],
+                  [3, 3],
+                  [6, 4],
+                  [6, 6]])
 
-    # y = X['y']
-    # forest = RandomForestRegressor(n_estimators=n_trees)
-    # forest.fit(X_train_ex, y_train_ex)
+    y = np.array([70, 100, 60, 100, 120])
 
-#    y_hat, V_IJ_unbiased = random_forest_error(forest, inbag_ex, X_train_ex, X_test_ex)
+    train_idx = [2, 3, 4]
+    test_idx = [0, 1]
+
+    y_test = y[test_idx]
+    y_train = y[train_idx]
+    X_test = X[test_idx]
+    X_train = X[train_idx]
+
+    n_trees = 4
+    forest = RandomForestRegressor(n_estimators=n_trees)
+    forest.fit(X_train, y_train)
+    inbag = calc_inbag(X_train.shape[0], forest)
+    y_hat, V_IJ_unbiased = random_forest_error(forest, inbag, X_train, X_test)

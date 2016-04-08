@@ -19,8 +19,9 @@ def _core_computation(X_train, X_test, inbag, pred_centered, n_trees):
     cov_hat = np.zeros((X_train.shape[0], X_test.shape[0]))
 
     for t_idx in range(n_trees):
-        cov_hat += np.dot((inbag[:, t_idx] - 1).reshape(-1, 1), pred_centered.T[t_idx].reshape(1, -1)) / n_trees
-
+        inbag_r = (inbag[:, t_idx] - 1).reshape(-1, 1)
+        pred_c_r = pred_centered.T[t_idx].reshape(1, -1)
+        cov_hat += np.dot(inbag_r, pred_c_r) / n_trees
     V_IJ = np.sum(cov_hat ** 2, 0)
     return V_IJ
 
@@ -35,11 +36,11 @@ def random_forest_error(forest, inbag, X_train, X_test):
     X : ndarray
         with shape (n_sample, n_features).
     """
-    pred = np.array([tree.predict(X_test) for tree in forest])
+    pred = np.array([tree.predict(X_test) for tree in forest]).T
     pred_mean = np.mean(pred, 0)
     pred_centered = pred - pred_mean
     n_trees = forest.n_estimators
     n_train_samples = inbag.shape[0]
     V_IJ = _core_computation(X_train, X_test, inbag, pred_centered, n_trees)
-    V_IJ_unbiased = V_IJ - (X_train.shape[0] / (n_trees ** 2)) * np.sum(pred_centered ** 2, 0)
+    V_IJ_unbiased = V_IJ - (X_train.shape[0] / (n_trees ** 2)) * np.sum(pred_centered.T ** 2, 0)
     return pred_mean, V_IJ_unbiased
