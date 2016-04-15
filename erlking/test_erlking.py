@@ -4,7 +4,7 @@ import numpy.testing as npt
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import DecisionTreeRegressor
 import sklearn.cross_validation as xval
-from erlking import random_forest_error, calc_inbag, _core_computation
+from erlking import random_forest_error, calc_inbag, _core_computation, _bias_correction
 
 def test_core_computation():
     inbag_ex = np.array([[ 1.,  2.,  0.,  1.],
@@ -46,3 +46,24 @@ def test_random_forest_error():
     forest.fit(X_train, y_train)
     inbag = calc_inbag(X_train.shape[0], forest)
     y_hat, V_IJ_unbiased = random_forest_error(forest, inbag, X_train, X_test)
+
+def test_bias_correction():
+    inbag_ex = np.array([[ 1.,  2.,  0.,  1.],
+                         [ 1.,  0.,  2.,  0.],
+                         [ 1.,  1.,  1.,  2.]])
+
+    X_train_ex = np.array([[3,3],
+                           [6,4],
+                           [6,6]])
+
+    X_test_ex = np.array([[5,2],
+                          [5,5]])
+
+    pred_centered_ex = np.array([[-20,-20,10,30],[-20,30,-20,10]])
+    n_trees = 4
+
+    our_vij = _core_computation(X_train_ex, X_test_ex, inbag_ex, pred_centered_ex, n_trees)
+    our_vij_unbiased = _bias_correction(our_vij, inbag_ex, pred_centered_ex, n_trees)
+    r_unbiased_vij = np.array([-42.1875, 232.8125])
+    r_vij = np.array([ 112.5,  387.5])
+    npt.assert_almost_equal(our_vij_unbiased, r_unbiased_vij)
