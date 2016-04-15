@@ -50,4 +50,4 @@ def random_forest_error(forest, inbag, X_train, X_test):
     n_train_samples = inbag.shape[0]
     V_IJ = _core_computation(X_train, X_test, inbag, pred_centered, n_trees)
     V_IJ_unbiased = _bias_correction(V_IJ, inbag, pred_centered, n_trees)
-    return pred_mean, V_IJ_unbiased
+    return V_IJ_unbiased

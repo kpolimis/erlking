@@ -45,8 +45,8 @@ def test_random_forest_error():
     forest = RandomForestRegressor(n_estimators=n_trees)
     forest.fit(X_train, y_train)
     inbag = calc_inbag(X_train.shape[0], forest)
-    y_hat, V_IJ_unbiased = random_forest_error(forest, inbag, X_train, X_test)
-
+    V_IJ_unbiased = random_forest_error(forest, inbag, X_train, X_test)
+    
 def test_bias_correction():
     inbag_ex = np.array([[ 1.,  2.,  0.,  1.],
                          [ 1.,  0.,  2.,  0.],
